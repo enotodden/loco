@@ -1,14 +1,14 @@
 -- # Loco
 
--- Port of [Docco](http://jashkenas.github.io/docco/): 
+-- Port of [Docco](http://jashkenas.github.io/docco/):
 -- The original quick-and-dirty, hundred-line-long,
--- literate-programming-style documentation generator. 
+-- literate-programming-style documentation generator.
 --
 -- Loco outputs HTML alongside code for simple and easy documentation.
 -- No javadoc or other crap, just markdown/nanomd and code.
 --
--- Comments are passed through [nanomd](https://github.com/enotodden/nanomd) or 
--- Niklas Frykholm's Markdown module.
+-- Comments are passed through Niklas Frykholm's Markdown module or
+-- 'nanomd', the built-in tiny markdown 'alternative'.
 --
 --
 -- If you're reading this in a browser, this page is generated using loco.
@@ -63,7 +63,7 @@ function parse(code)
         if line:match("^%s*%-%-.*$") and not line:match("^%s*%-%-|.*$") then
             -- If the line 'starts with' a comment and not with --|
             -- We use --| to avoid inclusion.
-            -- This is useful in some cases where code is supposed to be 
+            -- This is useful in some cases where code is supposed to be
             -- commented out.
             if has_code then
                 sections[#sections+1] = {
@@ -91,6 +91,40 @@ end
 
 --## HTML Generator
 
+function nanomd(source)
+    out = {}
+    source = "\n" .. source
+    source = source:gsub("\n%s%|%>%>%>(.-)\n%s%<%<%<%|\n",
+                         "<pre><code>%1</code></pre>")
+    for i=1000,1,-1 do
+        source = source:gsub(string.rep("%>", i) .. "(.-)\n",
+                             "\n" .. string.rep("&nbsp;", i*4) .. "%1\n")
+    end
+    source = source:gsub("%[(.-)%]%((.-)%)", [[<a href="%2">%1</a>]])
+    source = source:gsub("%[(.-)%]", [[<a href="%1">%1</a>]])
+    source = source:gsub("%`(.-)%`", "<code>%1</code>")
+    source = source:gsub("%*%*(.-)%*%*", "<i>%1</i>")
+    source = source:gsub("%_%_(.-)%_%_", "<u>%1</u>")
+    source = source:gsub("%*(.-)%*", "<strong>%1</strong>")
+    source = source:gsub("([A-Z]+)%:%s", "<strong>%0</strong>")
+    source = source:gsub("\n%s*%=([a-zA-Z0-9_]+)", [[<i id="%1"></i>]])
+    source = source:gsub("\n%s*######(.-)%\n", "<h6>%1</h6>")
+    source = source:gsub("\n%s*#####(.-)%\n", "<h5>%1</h5>")
+    source = source:gsub("\n%s*####(.-)%\n", "<h4>%1</h4>")
+    source = source:gsub("\n%s*###(.-)%\n", "<h3>%1</h3>")
+    source = source:gsub("\n%s*##(.-)%\n", "<h2>%1</h2>")
+    source = source:gsub("\n%s*#(.-)%\n", "<h1>%1</h1>")
+    source = source:gsub("%-%-%--\n", "<hr/>\n")
+    for i, line in ipairs(strsplit(source, "\n\n")) do
+        line = line:match("^%s*(.-)%s*$")
+        if line ~= "" then
+            out[#out+1] =  "<p>" .. line .. "</p>"
+        end
+    end
+    local result = table.concat(out, "\n")
+    return result
+end
+
 -- Make the html..
 -- Valid 'parsers' are `"markdown"`, `"nanomd"` or `nil` (no processing)
 --
@@ -98,7 +132,7 @@ function generate_html(sections, parser)
     if parser == "markdown" then
         parser = require("markdown")
     elseif parser == "nanomd" then
-        parser = require("nanomd")
+        parser = nanomd
     end
     local out = templates.header
     for i, section in ipairs(sections) do
@@ -195,7 +229,6 @@ templates.section = [[
     </td>
 </tr>
 ]]
-
 
 
 --## Command line part
