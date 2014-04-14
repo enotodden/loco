@@ -94,12 +94,12 @@ end
 function nanomd(source)
     out = {}
     source = "\n" .. source
-    source = source:gsub("\n%s%|%>%>%>(.-)\n%s%<%<%<%|\n",
-                         "<pre><code>%1</code></pre>")
     for i=1000,1,-1 do
         source = source:gsub(string.rep("%>", i) .. "(.-)\n",
                              "\n" .. string.rep("&nbsp;", i*4) .. "%1\n")
     end
+    source = source:gsub("\n%s%|%:%:%:(.-)\n%s%:%:%:%|\n",
+                         "<pre><code>%1</code></pre>")
     source = source:gsub("%[(.-)%]%((.-)%)", [[<a href="%2">%1</a>]])
     source = source:gsub("%[(.-)%]", [[<a href="%1">%1</a>]])
     source = source:gsub("%`(.-)%`", "<code>%1</code>")
@@ -225,7 +225,7 @@ templates.section = [[
 <tr id="section-%d">
     <td class="docs"><a class="section-link" href="#section-%d">#</a>%s</td>
     <td class="code">
-        <pre><code class="lua">%s</code></pre>
+        <pre><code>%s</code></pre>
     </td>
 </tr>
 ]]
