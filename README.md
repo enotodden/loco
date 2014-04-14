@@ -1,7 +1,9 @@
 loco
 ====
 
-Port of Docco to Lua with support for Markdown and nanomd.
+Quick and dirty doc generator.
+
+Port of Docco to Lua.
 
 ------------
 

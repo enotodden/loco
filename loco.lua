@@ -1,19 +1,20 @@
--- # Loco
+-- Loco
+-- ====
 
 -- Port of [Docco](http://jashkenas.github.io/docco/):
 -- The original quick-and-dirty, hundred-line-long,
 -- literate-programming-style documentation generator.
 --
 -- Loco outputs HTML alongside code for simple and easy documentation.
--- No javadoc or other crap, just markdown/nanomd and code.
+-- No javadoc or other crap, just markdown and code.
 --
--- Comments are passed through Niklas Frykholm's Markdown module or
--- 'nanomd', the built-in tiny markdown 'alternative'.
+-- Comments are passed through Niklas Frykholm's Markdown module.
 --
 --
 -- If you're reading this in a browser, this page is generated using loco.
 --
 
+local markdown = require("markdown")
 local templates = {}
 
 --## Utilities
@@ -91,67 +92,24 @@ end
 
 --## HTML Generator
 
-function nanomd(source)
-    out = {}
-    source = "\n" .. source
-    source = source:gsub("\n%s%|%>%>%>(.-)\n%s%<%<%<%|\n",
-                         "<pre><code>%1</code></pre>")
-    for i=1000,1,-1 do
-        source = source:gsub(string.rep("%>", i) .. "(.-)\n",
-                             "\n" .. string.rep("&nbsp;", i*4) .. "%1\n")
-    end
-    source = source:gsub("%[(.-)%]%((.-)%)", [[<a href="%2">%1</a>]])
-    source = source:gsub("%[(.-)%]", [[<a href="%1">%1</a>]])
-    source = source:gsub("%`(.-)%`", "<code>%1</code>")
-    source = source:gsub("%*%*(.-)%*%*", "<i>%1</i>")
-    source = source:gsub("%_%_(.-)%_%_", "<u>%1</u>")
-    source = source:gsub("%*(.-)%*", "<strong>%1</strong>")
-    source = source:gsub("([A-Z]+)%:%s", "<strong>%0</strong>")
-    source = source:gsub("\n%s*%=([a-zA-Z0-9_]+)", [[<i id="%1"></i>]])
-    source = source:gsub("\n%s*######(.-)%\n", "<h6>%1</h6>")
-    source = source:gsub("\n%s*#####(.-)%\n", "<h5>%1</h5>")
-    source = source:gsub("\n%s*####(.-)%\n", "<h4>%1</h4>")
-    source = source:gsub("\n%s*###(.-)%\n", "<h3>%1</h3>")
-    source = source:gsub("\n%s*##(.-)%\n", "<h2>%1</h2>")
-    source = source:gsub("\n%s*#(.-)%\n", "<h1>%1</h1>")
-    source = source:gsub("%-%-%--\n", "<hr/>\n")
-    for i, line in ipairs(strsplit(source, "\n\n")) do
-        line = line:match("^%s*(.-)%s*$")
-        if line ~= "" then
-            out[#out+1] =  "<p>" .. line .. "</p>"
-        end
-    end
-    local result = table.concat(out, "\n")
-    return result
-end
-
 -- Make the html..
--- Valid 'parsers' are `"markdown"`, `"nanomd"` or `nil` (no processing)
 --
-function generate_html(sections, parser)
-    if parser == "markdown" then
-        parser = require("markdown")
-    elseif parser == "nanomd" then
-        parser = nanomd
-    end
+function generate_html(sections)
     local out = templates.header
     for i, section in ipairs(sections) do
         local docs_text = section.docs_text
-        if parser then
-            docs_text = parser(docs_text)
-        end
         out = out .. string.format(templates.section,
                                    i,
                                    i,
-                                   docs_text,
+                                   markdown(docs_text),
                                    htmlentities(section.code_text))
     end
     out = out .. templates.footer
     return out
 end
 
-function loco(source, parser)
-    return generate_html(parse(source), parser)
+function loco(source)
+    return generate_html(parse(source))
 end
 
 
@@ -225,7 +183,7 @@ templates.section = [[
 <tr id="section-%d">
     <td class="docs"><a class="section-link" href="#section-%d">#</a>%s</td>
     <td class="code">
-        <pre><code class="lua">%s</code></pre>
+        <pre><code>%s</code></pre>
     </td>
 </tr>
 ]]
@@ -238,23 +196,19 @@ if arg and arg[0]:find("loco%.lua$") then
     local os = require("os")
 
     local USAGE = [[
-        lua loco.lua INPUTFILE [--markdown]
+        lua loco.lua INPUTFILE
     or
-        cat INPUTFILE | lua loco.lua [--markdown]
+        cat INPUTFILE | lua loco.lua
     ]]
 
     local infile = arg[1]
     local source = ""
-    local parser = "nanomd"
     for _, v in ipairs(arg) do
         -- If -h/--help is in the argument list
         -- print the usage message and exit
         if v == "--help" or v == "-h" then
             print(USAGE)
             os.exit(1)
-        end
-        if v == "--markdown" or v == "-md" then
-            parser = "markdown"
         end
     end
     if (infile ~= nil and infile ~= "--") then
@@ -270,7 +224,7 @@ if arg and arg[0]:find("loco%.lua$") then
         local f = io.input()
         source = f:read("*all")
     end
-    print(loco(source, parser))
+    print(loco(source))
 else
     return loco
 end
