@@ -119,9 +119,9 @@ templates.header = [[
 <!doctype html>
 <html>
     <head>
-        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/tomorrow.min.css">
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/languages/lua.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/tomorrow.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/languages/lua.min.js"></script>
         <meta charset="utf-8"/>
         <style>
             body {
