@@ -7,4 +7,4 @@ Port of Docco to Lua.
 
 ------------
 
-Includes Niklas Frykholm's markdown.lua. See markdown.lua for license.
+Includes Niklas Frykholm's / Peter Melnichenko's markdown.lua. See LICENSE\_markdown for license.
