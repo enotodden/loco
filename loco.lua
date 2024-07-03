@@ -157,6 +157,14 @@ templates.header = [[
                 color: #2b2b2b;
                 text-decoration: none;
             }
+            h1,h2,h3,h4,h5,h6 {
+                padding-top: 10px;
+            }
+            h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+              color: inherit;
+              text-decoration: inherit;
+              cursor: pointer;
+            }
         </style>
     </head>
     <body>
@@ -170,7 +178,11 @@ templates.footer = [[
             </table>
         </div>
         <script>
-            hljs.initHighlightingOnLoad();
+            hljs.highlightAll();
+            document.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(function(x){
+                x.id = x.innerHTML.replace(/:.*/, "").replaceAll(" ", "-");
+                x.innerHTML = `<a href="#` + x.id + `">` + x.innerHTML + `</a>`;
+            });
         </script>
     </body>
 </html>
