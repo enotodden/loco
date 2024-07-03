@@ -138,7 +138,7 @@ templates.header = [[
                 text-align: left;
             }
             td.code {
-                padding: 30px 15px 16px 50px;
+                padding: 40px 15px 16px 50px;
                 width: 100%;
                 vertical-align: top;
                 border-left: 1px solid #e5e5ee;
